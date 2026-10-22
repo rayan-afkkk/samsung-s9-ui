@@ -6,7 +6,7 @@ const DEFAULTS = {
   // Taskbar & navigation
   replaceTaskbar: true,
   replaceStart: true,
-  navButtons: true,
+  navButtons: false,
   hookWinA: true,
   hookWinTab: true,
   // Wallpaper & style
@@ -41,6 +41,12 @@ function load() {
     data = { ...DEFAULTS, ...JSON.parse(fs.readFileSync(file, 'utf8')) };
   } catch {
     data = { ...DEFAULTS };
+  }
+  // v2: navigation buttons are off by default now; turn them off for existing installs too.
+  if ((data.configVersion || 1) < 2) {
+    data.navButtons = false;
+    data.configVersion = 2;
+    try { fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, JSON.stringify(data, null, 2)); } catch {}
   }
   return data;
 }

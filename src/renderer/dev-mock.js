@@ -52,7 +52,7 @@
   const app = (n) => apps.find((a) => a.name === n);
 
   let config = {
-    replaceTaskbar: true, replaceStart: true, navButtons: true, hookWinA: true, hookWinTab: true,
+    replaceTaskbar: true, replaceStart: true, navButtons: q.get('nav') === '1', hookWinA: true, hookWinTab: true,
     wallpaper: null, wallpaperUrl: null, wallpaperPreset: q.get('wp') || 'blue', accent: '#3e7bfa', darkMode: q.get('dark') === '1',
     photos: [null, null, null, null, null, null], photoUrls: [null, null, null, null, null, null],
     lockPhoto: null, lockPhotoUrl: null, city: '', units: 'C', showSearch: true,

@@ -288,7 +288,7 @@
     render() {
       document.body.className = 'v-dock';
       const m = this.model;
-      const nav = cfg.navButtons !== false;
+      const nav = !!cfg.navButtons;
       if (m.mode === 'taskbar') {
         root.innerHTML = `
           <div class="taskbar">
@@ -404,22 +404,22 @@
         <div class="stage">
           <div class="lockdate" data-date="long"></div>
           <div class="lockclock" data-clock="pad"></div>
-          <div class="w" style="left:530px;top:330px;width:170px;height:170px;background:rgba(170,184,200,.45);padding:20px">
+          <div class="w lk-card" style="left:530px;top:330px;width:170px;height:170px;background:rgba(170,184,200,.45);padding:20px">
             <svg id="lk-wx-icon" style="position:absolute;right:18px;top:16px;width:60px;height:60px;fill:#6c7079;stroke:#6c7079"><use href="#moon"/></svg>
             <div id="lk-wx-temp" style="position:absolute;left:22px;top:72px;font-size:26px;font-weight:600;color:#5d6470">--°</div>
             <div id="lk-wx-text" style="position:absolute;left:22px;top:110px;right:14px;font-size:12px;color:#5d6470;line-height:1.4"></div>
           </div>
-          <div class="w" style="left:716px;top:330px;width:168px;height:76px;background:rgba(170,184,200,.45);display:flex;align-items:center;justify-content:space-around;color:#5d6470">
+          <div class="w lk-card" style="left:716px;top:330px;width:168px;height:76px;background:rgba(170,184,200,.45);display:flex;align-items:center;justify-content:space-around;color:#5d6470">
             <div style="text-align:center"><div id="lk-batt"></div><small id="lk-batt-t">--</small></div>
             <div style="text-align:center"><div id="lk-cpu"></div><small>CPU</small></div>
           </div>
-          <div class="w click" id="lk-clean" style="left:716px;top:424px;width:76px;height:76px;background:rgba(170,184,200,.45);display:flex;align-items:center;justify-content:center;color:#5d6470">${ic('clean', 'width:34px;height:34px')}</div>
+          <div class="w click lk-card" id="lk-clean" style="left:716px;top:424px;width:76px;height:76px;background:rgba(170,184,200,.45);display:flex;align-items:center;justify-content:center;color:#5d6470">${ic('clean', 'width:34px;height:34px')}</div>
           ${lockPhoto}
         </div>
-        <div style="position:absolute;left:0;right:0;bottom:130px;text-align:center;font-size:20px;color:#5d6470">Swipe up or press any key to unlock</div>
-        <div style="position:absolute;left:0;right:0;bottom:100px;text-align:center;font-size:13px;color:#7c8696">Windows Hello • PIN • Password</div>
-        <div class="click" id="lk-left" style="position:absolute;left:48px;bottom:50px;width:66px;height:66px;border-radius:50%;background:rgba(190,202,218,.7);display:flex;align-items:center;justify-content:center;color:#fff">${ic('leaf', 'width:28px;height:28px;stroke-width:2.4')}</div>
-        <div class="click" id="lk-right" style="position:absolute;right:48px;bottom:50px;width:66px;height:66px;border-radius:50%;background:rgba(190,202,218,.7);display:flex;align-items:center;justify-content:center;color:#fff">${ic('cam', 'width:28px;height:28px;stroke-width:2.4')}</div>`;
+        <div class="lk-hint" style="position:absolute;left:0;right:0;bottom:130px;text-align:center;font-size:20px;color:#5d6470">Swipe up or press any key to unlock</div>
+        <div class="lk-hint" style="position:absolute;left:0;right:0;bottom:100px;text-align:center;font-size:13px;color:#7c8696">Windows Hello • PIN • Password</div>
+        <div class="click lk-btn" id="lk-left" style="position:absolute;left:48px;bottom:50px;width:66px;height:66px;border-radius:50%;background:rgba(190,202,218,.7);display:flex;align-items:center;justify-content:center;color:#fff">${ic('leaf', 'width:28px;height:28px;stroke-width:2.4')}</div>
+        <div class="click lk-btn" id="lk-right" style="position:absolute;right:48px;bottom:50px;width:66px;height:66px;border-radius:50%;background:rgba(190,202,218,.7);display:flex;align-items:center;justify-content:center;color:#fff">${ic('cam', 'width:28px;height:28px;stroke-width:2.4')}</div>`;
       tick();
       this.lockUpdate();
       $('#lk-clean', el).onclick = (e) => { e.stopPropagation(); optimize(); };
@@ -591,7 +591,7 @@
           </div>
           <div class="drawer-page" id="dr-grid"></div>
           <div class="dots" id="dr-dots" style="top:830px"></div>
-          <div style="position:absolute;left:50%;transform:translateX(-50%);bottom:70px;display:flex;gap:12px;align-items:center;padding:10px 16px 10px 10px;border-radius:30px;background:rgba(255,255,255,.7)">
+          <div class="glass-pill" style="position:absolute;left:50%;transform:translateX(-50%);bottom:70px;display:flex;gap:12px;align-items:center;padding:10px 16px 10px 10px;border-radius:30px;background:rgba(255,255,255,.7)">
             <div class="app sm c-blu" style="border-radius:50%">${ic('user', '', '')}</div><b style="font-size:14px">${esc(name)}</b>
             <span style="width:1px;height:26px;background:#ccd3de;margin:0 6px"></span>
             <span class="click" id="dr-settings">${ic('gear', 'color:var(--ink2)')}</span><span class="click" id="dr-power">${ic('power', 'color:var(--ink2);margin-left:10px')}</span>
@@ -689,12 +689,12 @@
           }).join('')}
         </div>
         ${list.length ? '' : '<div class="empty">No recent apps</div>'}
-        ${list.length ? '<div class="click" id="rc-closeall" style="position:absolute;left:50%;transform:translateX(-50%);bottom:90px;padding:12px 30px;border-radius:24px;background:rgba(255,255,255,.75);font-size:15px;font-weight:600">Close all</div>' : ''}
-        <div class="nav">
+        ${list.length ? '<div class="click glass-pill" id="rc-closeall" style="position:absolute;left:50%;transform:translateX(-50%);bottom:90px;padding:12px 30px;border-radius:24px;background:rgba(255,255,255,.75);font-size:15px;font-weight:600">Close all</div>' : ''}
+        ${cfg.navButtons ? `<div class="nav">
           <span class="navbtn" data-nav="recents">${ic('recent', 'color:var(--accent)')}</span>
           <span class="navbtn" data-nav="home">${ic('home')}</span>
           <span class="navbtn" data-nav="back">${ic('back')}</span>
-        </div>`;
+        </div>` : ''}`;
       const strip = $('#rc-strip', el);
       // Center the strip when it fits, like One UI.
       requestAnimationFrame(() => {

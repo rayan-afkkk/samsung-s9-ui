@@ -136,9 +136,9 @@ h1{font-size:32px;font-weight:700}
 /* ---------------------------------------------------------------- dock window */
 body.v-dock{background:transparent}
 .dock-home .dock{bottom:72px}
-.taskbar{position:absolute;left:0;right:0;bottom:0;height:120px;background:rgba(240,245,252,.8);display:flex;align-items:center;padding:0 30px;gap:22px}
+.taskbar{position:absolute;left:0;right:0;bottom:0;height:120px;background:rgba(240,245,252,.8);display:flex;align-items:center;justify-content:center;padding:0 30px;gap:22px}
 .taskbar .sep{width:2px;height:36px;background:#c2cbd8}
-.taskbar .navs{margin-left:auto;display:flex;gap:70px;color:var(--ink2);padding-right:60px}
+.taskbar .navs{position:absolute;right:60px;top:50%;transform:translateY(-50%);display:flex;gap:70px;color:var(--ink2)}
 .navbtn{cursor:pointer;padding:8px;margin:-8px;border-radius:12px}
 .navbtn:hover{background:rgba(93,104,120,.12)}
 .tip{position:absolute;bottom:100%;left:50%;transform:translate(-50%,-8px);background:rgba(43,52,66,.9);color:#fff;font-size:12px;padding:4px 10px;border-radius:10px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s}
@@ -219,3 +219,26 @@ body.v-settings .win{left:0;top:0;right:0;bottom:0;width:auto!important;height:a
 .wp-tile.on{outline:3px solid var(--accent);outline-offset:3px}
 .wp-tile span{position:absolute;left:12px;bottom:10px;font-size:13px;font-weight:600;color:#2b3442;background:rgba(255,255,255,.7);padding:3px 10px;border-radius:10px}
 .preview > .wall{border-radius:inherit}
+
+/* dark mode: the mockup markup has light inline colors, so override them here */
+.dark .pillsearch{background:rgba(38,46,60,.88)!important;color:var(--ink2)}
+.dark .wall.dim::after{background:rgba(10,14,22,.5)}
+.dark .photo:not(.user){filter:brightness(.78) saturate(.9)}
+.dark .w[style*="transparent"] div{color:var(--ink)}
+.dark .lockclock,.dark .lockdate{color:#d5dce7}
+.dark .lock-layer .status + div{color:#d5dce7!important}
+.dark .lk-card{background:rgba(36,44,58,.7)!important;color:#c9d2df!important}
+.dark .lk-card div,.dark .lk-card small{color:#c9d2df!important}
+.dark .lk-card svg{fill:#c9d2df!important;stroke:#c9d2df!important}
+.dark .lk-hint{color:#aab4c3!important}
+.dark .lk-btn{background:rgba(44,53,70,.8)!important}
+.dark .glass-pill{background:rgba(38,46,60,.88)!important;color:var(--ink)}
+.dark .glass-pill span[style*="background"]{background:#3a4558!important}
+.dark .dock{background:rgba(38,46,60,.7);box-shadow:0 6px 30px rgba(0,0,0,.35)}
+.dark .app.c-wht{background:#2c3546}
+.dark .menu div:hover{background:rgba(120,160,255,.14)}
+.dark .rcard .win{background:#1e2533}
+.dark .preview{box-shadow:0 4px 18px rgba(0,0,0,.35)}
+.dark .wp-tile span{background:rgba(20,26,36,.7);color:#e6ebf3}
+.dark #drawer-btn{background:#2c3546!important}
+.dark #drawer-btn svg{stroke:#c9d2df!important}
