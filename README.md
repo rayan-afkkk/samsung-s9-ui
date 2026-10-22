@@ -14,12 +14,13 @@ mockups.
 | ![](mockups/6-multi-window.png) Taskbar, split view, pop-up view | Snap | Tap an app icon in Recent apps |
 | ![](mockups/7-oneshell-settings.png) OneShell settings | — | Tray icon, or right-click the home screen |
 
-## Install
+## Download
 
-1. Open the repo's **Actions** tab and pick the latest **Build Windows installer** run.
-2. Download the **OneShell-Setup** artifact, unzip it and run `OneShell Setup x.y.z.exe`.
-   (It isn't code-signed, so SmartScreen may warn you: click *More info → Run anyway*.)
-3. OneShell starts right away and then with Windows every time you sign in.
+**[⬇️ Download OneShell for Windows 10 / 11](https://github.com/rayan-afkkk/samsung-s9-ui/releases/latest)**: on that page, click
+`OneShell-Setup-x.y.z.exe` under *Assets*, then run it.
+
+It isn't code-signed, so Windows SmartScreen may say "Windows protected your PC". Click
+*More info → Run anyway*. OneShell starts right away and then with Windows every time you sign in.
 
 **To get the normal Windows back:** right-click the OneShell tray icon and choose *Quit OneShell*,
 or press **Ctrl + Alt + Shift + Q** at any time. The Windows taskbar comes back even if OneShell

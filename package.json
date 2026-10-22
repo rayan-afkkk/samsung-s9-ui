@@ -29,6 +29,7 @@
       "icon": "build/icon.png"
     },
     "nsis": {
+      "artifactName": "OneShell-Setup-${version}.exe",
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
