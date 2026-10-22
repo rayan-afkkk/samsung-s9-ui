@@ -1,0 +1,439 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>OneShell mockups</title>
+<style>
+:root{
+  --bg1:#dfe9f7; --bg2:#c9daf0; --ink:#2b3442; --ink2:#5d6878; --card:rgba(255,255,255,.62);
+  --card-solid:#f4f7fc; --accent:#3e7bfa; --pill:rgba(255,255,255,.75);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1600px;height:1000px;overflow:hidden;font-family:Inter,"Noto Color Emoji",sans-serif;color:var(--ink);background:var(--bg1)}
+.screen{position:absolute;inset:0;display:none;overflow:hidden}
+.screen.on{display:block}
+.wall{position:absolute;inset:0;background:
+  radial-gradient(900px 500px at 15% 110%, #b9cff0 0, transparent 60%),
+  radial-gradient(700px 500px at 95% -10%, #cbdcf5 0, transparent 60%),
+  radial-gradient(600px 400px at 70% 80%, #e8f0fb 0, transparent 70%),
+  linear-gradient(160deg,#e6eefa,#d4e2f4)}
+.wall.dim::after{content:"";position:absolute;inset:0;backdrop-filter:blur(30px);background:rgba(220,230,245,.35)}
+/* status bar */
+.status{position:absolute;top:0;left:0;right:0;height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 26px;font-size:15px;color:var(--ink);z-index:20}
+.status .l,.status .r{display:flex;gap:12px;align-items:center}
+.batt{display:inline-flex;align-items:center;justify-content:center;width:30px;height:16px;border-radius:6px;background:#5d6878;color:#fff;font-size:10px;font-weight:700}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--ink2);display:inline-block}
+svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+/* nav bar (replaces taskbar) */
+.dock{position:absolute;left:50%;transform:translateX(-50%);bottom:62px;display:flex;gap:26px;align-items:center;padding:14px 28px;border-radius:30px;background:rgba(255,255,255,.45);backdrop-filter:blur(20px);box-shadow:0 6px 30px rgba(60,90,140,.12)}
+.dock .sep{width:2px;height:40px;background:rgba(93,104,120,.35);border-radius:2px}
+.nav{position:absolute;bottom:0;right:0;left:0;height:52px;display:flex;justify-content:flex-end;gap:70px;align-items:center;padding-right:90px;color:var(--ink2)}
+.nav svg{width:22px;height:22px}
+/* app icon */
+.app{width:64px;height:64px;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:0 3px 10px rgba(40,60,100,.15);position:relative;color:#fff}
+.app svg{width:34px;height:34px;stroke:#fff;stroke-width:2.2;fill:none}
+.app .badge{position:absolute;top:-6px;right:-6px;background:#f2453d;color:#fff;font-size:11px;font-weight:700;border-radius:10px;padding:2px 6px}
+.app.sm{width:52px;height:52px;border-radius:18px;font-size:26px}
+.app.sm svg{width:28px;height:28px}
+.lbl{font-size:13px;text-align:center;margin-top:8px;color:var(--ink)}
+.c-red{background:linear-gradient(145deg,#ff6b6b,#e2353b)} .c-org{background:linear-gradient(145deg,#ffc35a,#f39a1e)}
+.c-blu{background:linear-gradient(145deg,#6aa5ff,#2f6bf0)} .c-grn{background:linear-gradient(145deg,#4fdc7d,#1faa52)}
+.c-wht{background:#fff;color:#333} .c-wht svg{stroke:#3e7bfa}
+.c-pur{background:linear-gradient(145deg,#a98bff,#6b4ae0)} .c-dk{background:linear-gradient(145deg,#454e5f,#262c37)}
+.c-tea{background:linear-gradient(145deg,#4fd6d0,#13a39d)} .c-pnk{background:linear-gradient(145deg,#ff8fc4,#e84c94)}
+.c-gry{background:linear-gradient(145deg,#c7ced9,#8f99a8)}
+/* widgets */
+.w{position:absolute;border-radius:28px;background:var(--card);backdrop-filter:blur(18px);box-shadow:0 4px 24px rgba(60,90,140,.08)}
+.photo{position:absolute;border-radius:26px;overflow:hidden;box-shadow:0 4px 18px rgba(60,90,140,.15)}
+.ocean{background:
+  repeating-linear-gradient(172deg, rgba(255,255,255,.0) 0 14px, rgba(255,255,255,.55) 16px 18px, rgba(255,255,255,0) 22px 34px),
+  linear-gradient(180deg,#5d87b8 0,#3d6a9e 40%,#7fa6cf 75%,#dfeaf6 100%)}
+.dice{background:
+  radial-gradient(circle at 20% 30%, #9fc3f0 0 22px, transparent 23px),
+  radial-gradient(circle at 60% 20%, #fff 0 20px, transparent 21px),
+  radial-gradient(circle at 75% 65%, #7eaee8 0 26px, transparent 27px),
+  radial-gradient(circle at 35% 75%, #e9f1fb 0 24px, transparent 25px),
+  radial-gradient(circle at 85% 25%, #c6dbf5 0 16px, transparent 17px),
+  linear-gradient(135deg,#d7e4f4,#b4cdec)}
+.quote{background:#f1f5fb;display:flex;align-items:center;justify-content:center;font:900 38px/0.92 "DejaVu Serif",serif;color:#7fa3cf;text-align:center;letter-spacing:-1px}
+.tiles{background:repeating-linear-gradient(90deg,#cfe0f4 0 48px,#fff 48px 52px),#cfe0f4}
+.tiles::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 48px,#fff 48px 52px)}
+.swan{background:radial-gradient(ellipse 40px 22px at 55% 60%,#fff 0 95%,transparent),radial-gradient(ellipse 120px 30px at 50% 70%,#8fb0d8,transparent),linear-gradient(#b8cfeb,#e6effa)}
+.cd{background:radial-gradient(circle at 50% 50%,#eaf2fc 0 14px,#9cbbe3 15px 18px,#d8e6f7 19px 60px,#a8c4e8 61px 64px,transparent 65px),repeating-linear-gradient(45deg,#dce8f7 0 10px,#c8daf1 10px 20px)}
+/* lock */
+.lockclock{position:absolute;left:0;right:0;top:150px;text-align:center;font-weight:200;font-size:110px;letter-spacing:2px;color:#6e7480;transform:scaleY(1.35);transform-origin:top}
+.lockdate{position:absolute;left:0;right:0;top:115px;text-align:center;font-size:21px;color:#6e7480}
+/* quick panel */
+.qp{position:absolute;top:0;left:50%;transform:translateX(-50%);width:820px;border-radius:0 0 36px 36px;background:rgba(246,249,253,.9);backdrop-filter:blur(30px);padding:60px 34px 30px;box-shadow:0 20px 60px rgba(40,60,100,.2)}
+.tog{height:72px;border-radius:24px;background:#e4ebf5;display:flex;align-items:center;gap:14px;padding:0 18px;font-size:15px;font-weight:600}
+.tog .ic{width:42px;height:42px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;color:var(--ink2)}
+.tog.on{background:var(--accent);color:#fff}.tog.on .ic{background:rgba(255,255,255,.25);color:#fff}
+.tog small{display:block;font-weight:400;font-size:12px;opacity:.75}
+.slider{height:46px;border-radius:23px;background:#e4ebf5;position:relative;overflow:hidden;display:flex;align-items:center;padding-left:16px;color:var(--ink2)}
+.slider .fill{position:absolute;left:0;top:0;bottom:0;background:#bcd2f7;border-radius:23px}
+.slider svg{position:relative}
+.notif{border-radius:24px;background:#fff;padding:16px 18px;display:flex;gap:14px;align-items:flex-start;margin-top:12px}
+.notif b{font-size:14px}.notif p{font-size:13px;color:var(--ink2);margin-top:3px}
+/* windows */
+.win{position:absolute;border-radius:26px;background:#fff;box-shadow:0 18px 50px rgba(40,60,100,.22);overflow:hidden}
+.win .bar{height:34px;display:flex;align-items:center;justify-content:center;position:relative}
+.win .handle{width:60px;height:5px;border-radius:3px;background:#c4ccd8}
+.win .ctrls{position:absolute;right:14px;top:7px;display:flex;gap:8px}
+.win .ctrls span{width:20px;height:20px;border-radius:50%;background:#eef2f8;display:flex;align-items:center;justify-content:center;color:var(--ink2)}
+.win .ctrls svg{width:12px;height:12px}
+h1{font-size:32px;font-weight:700}
+.pillsearch{height:52px;border-radius:26px;background:rgba(255,255,255,.75);display:flex;align-items:center;gap:12px;padding:0 20px;color:var(--ink2);font-size:16px}
+.setrow{display:flex;align-items:center;gap:16px;padding:16px 20px}
+.setrow+.setrow{border-top:1px solid #eef1f6}
+.setrow .t{flex:1}.setrow .t b{font-size:16px;font-weight:600;display:block}.setrow .t span{font-size:13px;color:var(--ink2)}
+.sw{width:46px;height:26px;border-radius:13px;background:var(--accent);position:relative}
+.sw::after{content:"";position:absolute;right:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff}
+.sw.off{background:#cfd6e1}.sw.off::after{right:auto;left:3px}
+.group{background:#fff;border-radius:26px;overflow:hidden;margin-top:14px}
+.caption{position:absolute;left:26px;bottom:12px;font-size:12px;color:var(--ink2);opacity:.7;z-index:30}
+</style></head>
+<body>
+
+<!-- ===== SVG icon defs ===== -->
+<svg width="0" height="0" style="position:absolute">
+ <defs>
+  <symbol id="folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></symbol>
+  <symbol id="gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-2.7-1.1l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.6 1.6 0 0 0 3 15.4H3a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 4.6 9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.6 1.6 0 0 0 9 4.6V4a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 2.7 1.1l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1A1.6 1.6 0 0 0 20.4 11H21a2 2 0 1 1 0 4h-.1z"/></symbol>
+  <symbol id="chat" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></symbol>
+  <symbol id="play" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="4"/><path d="M10 9l5 3-5 3z" fill="#fff"/></symbol>
+  <symbol id="cam" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+  <symbol id="note" viewBox="0 0 24 24"><path d="M5 4h10l4 4v12H5z"/><path d="M9 12h6M9 16h4"/></symbol>
+  <symbol id="term" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 9l3 3-3 3M13 15h4"/></symbol>
+  <symbol id="code" viewBox="0 0 24 24"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></symbol>
+  <symbol id="music" viewBox="0 0 24 24"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></symbol>
+  <symbol id="photo" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></symbol>
+  <symbol id="mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 7l9 6 9-6"/></symbol>
+  <symbol id="cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+  <symbol id="store" viewBox="0 0 24 24"><path d="M4 8h16l-1 12H5z"/><path d="M9 8a3 3 0 0 1 6 0"/></symbol>
+  <symbol id="calc" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M8 7h8M8 12h2M14 12h2M8 16h2M14 16h2"/></symbol>
+  <symbol id="game" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="11" rx="5"/><path d="M7 11v3M5.5 12.5h3M16 12h.01M18 14h.01"/></symbol>
+  <symbol id="clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="spark" viewBox="0 0 24 24"><path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5z"/></symbol>
+  <symbol id="user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+  <symbol id="wifi" viewBox="0 0 24 24"><path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19.5" r="1" fill="currentColor"/></symbol>
+  <symbol id="bt" viewBox="0 0 24 24"><path d="M7 7l10 10-5 4V3l5 4L7 17"/></symbol>
+  <symbol id="mute" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4zM23 9l-6 6M17 9l6 6"/></symbol>
+  <symbol id="moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+  <symbol id="plane" viewBox="0 0 24 24"><path d="M10 21l2-7-7-2v-2l8 1 4-7h2l-2 8 6 1v2l-6 1 2 8h-2l-4-6-3 3z"/></symbol>
+  <symbol id="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="vol" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4zM15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></symbol>
+  <symbol id="search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/></symbol>
+  <symbol id="lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2" fill="currentColor"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+  <symbol id="recent" viewBox="0 0 24 24"><path d="M7 5v14M12 5v14M17 5v14"/></symbol>
+  <symbol id="home" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="5"/></symbol>
+  <symbol id="back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="min" viewBox="0 0 24 24"><path d="M6 12h12"/></symbol>
+  <symbol id="max" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></symbol>
+  <symbol id="dots" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="19" r="1.4" fill="currentColor"/></symbol>
+  <symbol id="edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/></symbol>
+  <symbol id="power" viewBox="0 0 24 24"><path d="M12 3v9M6.3 6.3a8 8 0 1 0 11.4 0"/></symbol>
+  <symbol id="split" viewBox="0 0 24 24"><rect x="3" y="4" width="8" height="16" rx="2"/><rect x="13" y="4" width="8" height="16" rx="2"/></symbol>
+  <symbol id="clean" viewBox="0 0 24 24"><path d="M12 3v8M7 11h10l1 4H6zM6 15l-1 6h14l-1-6M9 21v-3M12 21v-3M15 21v-3"/></symbol>
+  <symbol id="leaf" viewBox="0 0 24 24"><path d="M5 19c0-9 6-14 15-14 0 9-5 15-14 15zM5 19l8-8"/></symbol>
+ </defs>
+</svg>
+
+<!-- Shared status bar template is repeated per screen -->
+
+<!-- ================= 1. LOCK SCREEN ================= -->
+<section class="screen" id="s-lock">
+  <div class="wall"></div>
+  <div class="status"><div class="l">Wi-Fi • Ethernet <span class="dot"></span></div><div class="r"><svg class="i"><use href="#mute"/></svg><svg class="i"><use href="#wifi"/></svg><span class="batt">41</span></div></div>
+  <div style="position:absolute;top:62px;left:0;right:0;text-align:center;color:#555c68"><svg class="i" style="width:24px;height:24px"><use href="#lock"/></svg></div>
+  <div class="lockdate">Thu, October 22</div>
+  <div class="lockclock">08:16</div>
+  <!-- lock widgets -->
+  <div class="w" style="left:530px;top:330px;width:170px;height:170px;background:rgba(170,184,200,.45);padding:20px">
+    <svg style="position:absolute;right:18px;top:16px;width:60px;height:60px;fill:#6c7079;stroke:#6c7079"><use href="#moon"/></svg>
+    <div style="position:absolute;left:22px;top:72px;font-size:26px;font-weight:600;color:#5d6470">30°</div>
+    <div style="position:absolute;left:22px;top:110px;font-size:12px;color:#5d6470;line-height:1.4">Tomorrow's high<br>feels like 39°C…</div>
+  </div>
+  <div class="w" style="left:716px;top:330px;width:168px;height:76px;background:rgba(170,184,200,.45);display:flex;align-items:center;justify-content:space-around;color:#5d6470">
+    <div style="text-align:center"><div style="width:44px;height:44px;border-radius:50%;border:5px solid #6a707a;border-bottom-color:transparent;margin:0 auto"></div><small>41%</small></div>
+    <div style="text-align:center"><div style="width:44px;height:44px;border-radius:50%;border:5px solid #9aa2ae;border-bottom-color:transparent;margin:0 auto"></div><small>CPU</small></div>
+  </div>
+  <div class="w" style="left:716px;top:424px;width:76px;height:76px;background:rgba(170,184,200,.45);display:flex;align-items:center;justify-content:center;color:#5d6470"><svg class="i" style="width:34px;height:34px"><use href="#clean"/></svg></div>
+  <div class="photo dice" style="left:900px;top:330px;width:170px;height:170px"></div>
+  <div style="position:absolute;left:0;right:0;top:850px;text-align:center;font-size:20px;color:#5d6470">Swipe up or press any key to unlock</div>
+  <div style="position:absolute;left:0;right:0;top:885px;text-align:center;font-size:13px;color:#7c8696">Windows Hello • PIN • Password</div>
+  <div style="position:absolute;left:48px;bottom:50px;width:66px;height:66px;border-radius:50%;background:rgba(190,202,218,.7);display:flex;align-items:center;justify-content:center;color:#fff"><svg class="i" style="width:28px;height:28px;stroke-width:2.4"><use href="#leaf"/></svg></div>
+  <div style="position:absolute;right:48px;bottom:50px;width:66px;height:66px;border-radius:50%;background:rgba(190,202,218,.7);display:flex;align-items:center;justify-content:center;color:#fff"><svg class="i" style="width:28px;height:28px;stroke-width:2.4"><use href="#cam"/></svg></div>
+</section>
+
+<!-- ================= 2. HOME SCREEN ================= -->
+<section class="screen" id="s-home">
+  <div class="wall"></div>
+  <div class="status"><div class="l">8:14&nbsp;&nbsp; Thu, Oct 22 &nbsp;<svg class="i"><use href="#chat"/></svg><span class="dot"></span></div><div class="r"><svg class="i"><use href="#mute"/></svg><svg class="i"><use href="#wifi"/></svg><span class="batt">41</span></div></div>
+
+  <!-- weather + clock widget -->
+  <div class="w" style="left:200px;top:150px;width:560px;height:250px;background:transparent;box-shadow:none;backdrop-filter:none">
+    <div style="position:absolute;left:20px;top:10px;font-size:40px;font-weight:500">30°</div>
+    <div style="position:absolute;left:22px;top:62px;font-size:13px;color:var(--ink2)">⌖ Korangi</div>
+    <div style="position:absolute;left:20px;top:130px;font-size:14px;color:var(--ink2);line-height:1.4">Tomorrow's high feels like 39°C<br>due to humidity</div>
+    <svg style="position:absolute;right:30px;top:20px;width:66px;height:66px;color:#9fbde3;fill:#c5d8f0;stroke:#9fbde3"><use href="#moon"/></svg>
+    <div style="position:absolute;right:20px;top:118px;font-size:14px;font-weight:600;text-align:right">Thu, October 22</div>
+    <div style="position:absolute;right:16px;top:138px;font-size:54px;font-weight:600">8:14</div>
+  </div>
+  <!-- search pill -->
+  <div class="pillsearch" style="position:absolute;left:210px;top:420px;width:540px;background:rgba(200,220,245,.6)">
+    <svg class="i" style="width:22px;height:22px;color:#3e7bfa"><use href="#search"/></svg><span>Search apps, files, settings & web</span>
+    <span style="margin-left:auto;display:flex;gap:18px"><svg class="i"><use href="#spark"/></svg><svg class="i"><use href="#cam"/></svg></span>
+  </div>
+  <!-- screen time / system widget -->
+  <div class="w" style="left:210px;top:510px;width:180px;height:170px;background:rgba(255,255,255,.75);padding:18px">
+    <div style="font-size:12px;color:var(--ink2);line-height:1.8"><span style="color:#3e7bfa">●</span> Chrome<br><span style="color:#58c48a">●</span> WhatsApp</div>
+    <div style="position:absolute;left:18px;top:98px;font-size:26px;font-weight:600">4<small style="font-size:12px">h</small> 17<small style="font-size:12px">m</small></div>
+    <div style="position:absolute;left:18px;right:18px;bottom:18px;height:22px;border-radius:11px;background:linear-gradient(90deg,#3e7bfa 70%,#58c48a 70%)"></div>
+  </div>
+  <div class="w" style="left:410px;top:510px;width:340px;height:170px;background:rgba(255,255,255,.75);padding:18px 22px">
+    <div style="font-size:13px;color:var(--ink2);font-weight:600">Device care</div>
+    <div style="display:flex;gap:26px;margin-top:16px">
+      <div><div style="font-size:26px;font-weight:600">23%</div><small style="color:var(--ink2)">CPU</small></div>
+      <div><div style="font-size:26px;font-weight:600">6.1<small style="font-size:13px">GB</small></div><small style="color:var(--ink2)">RAM</small></div>
+      <div><div style="font-size:26px;font-weight:600">212<small style="font-size:13px">GB</small></div><small style="color:var(--ink2)">Free</small></div>
+    </div>
+    <div style="position:absolute;right:20px;bottom:18px;padding:8px 16px;border-radius:16px;background:#3e7bfa;color:#fff;font-size:13px;font-weight:600">Optimize now</div>
+  </div>
+
+  <!-- photo widgets -->
+  <div class="photo quote" style="left:880px;top:150px;width:160px;height:160px">do<br>what<br>you<br>love</div>
+  <div class="photo" style="left:1080px;top:150px;width:160px;height:160px;background:radial-gradient(circle at 30% 30%,#a9c5ec 0 18px,transparent 19px),radial-gradient(circle at 65% 55%,#a9c5ec 0 22px,transparent 23px),radial-gradient(circle at 40% 80%,#c0d5f1 0 16px,transparent 17px),#f2f6fc"></div>
+  <div class="photo ocean" style="left:880px;top:330px;width:360px;height:160px"></div>
+  <div class="photo swan" style="left:880px;top:510px;width:160px;height:70px;border-radius:35px"></div>
+  <div class="photo tiles" style="left:880px;top:600px;width:160px;height:70px;border-radius:24px"></div>
+  <div class="photo cd" style="left:1080px;top:510px;width:160px;height:160px"></div>
+  <div style="position:absolute;left:0;right:0;top:770px;display:flex;justify-content:center;gap:8px"><span class="dot"></span><span class="dot" style="background:#2b3442;width:7px;height:7px;margin-top:-1px"></span><span class="dot"></span></div>
+
+  <!-- DOCK replaces the Windows taskbar -->
+  <div class="dock" style="bottom:72px">
+    <div class="app c-red"><svg><use href="#note"/></svg></div>
+    <div class="app c-org"><svg><use href="#folder"/></svg></div>
+    <div class="app c-blu"><svg><use href="#globe"/></svg></div>
+    <div class="app c-wht"><svg><use href="#chat"/></svg></div>
+    <div class="app c-dk"><svg><use href="#term"/></svg></div>
+    <div class="app c-pur"><svg><use href="#code"/></svg></div>
+    <div class="app c-gry"><svg><use href="#gear"/></svg></div>
+    <div class="sep"></div>
+    <div class="app c-red"><svg><use href="#play"/></svg></div>
+    <div class="app c-grn"><svg><use href="#chat"/></svg><span class="badge">11</span></div>
+    <div class="app c-wht" style="font-size:30px"><svg style="stroke:#7b5cf0"><use href="#spark"/></svg></div>
+  </div>
+  <div class="nav"><svg class="i"><use href="#recent"/></svg><svg class="i"><use href="#home"/></svg><svg class="i"><use href="#back"/></svg></div>
+</section>
+
+<!-- ================= 3. QUICK PANEL ================= -->
+<section class="screen" id="quick">
+  <div class="wall dim"></div>
+  <div class="qp">
+    <div style="position:absolute;top:18px;left:34px;right:34px;display:flex;justify-content:space-between;font-size:15px;color:var(--ink2)"><span>8:14 &nbsp;Thu, Oct 22</span><span style="display:flex;gap:18px"><svg class="i"><use href="#edit"/></svg><svg class="i"><use href="#power"/></svg><svg class="i"><use href="#gear"/></svg></span></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+      <div class="tog on"><div class="ic"><svg class="i"><use href="#wifi"/></svg></div><div>Wi-Fi<small>PTCL-5G</small></div></div>
+      <div class="tog on"><div class="ic"><svg class="i"><use href="#bt"/></svg></div><div>Bluetooth<small>Buds2 Pro</small></div></div>
+      <div class="tog"><div class="ic"><svg class="i"><use href="#mute"/></svg></div><div>Sound<small>Muted</small></div></div>
+      <div class="tog"><div class="ic"><svg class="i"><use href="#moon"/></svg></div><div>Dark mode</div></div>
+      <div class="tog on"><div class="ic"><svg class="i"><use href="#leaf"/></svg></div><div>Eye comfort</div></div>
+      <div class="tog"><div class="ic"><svg class="i"><use href="#plane"/></svg></div><div>Airplane mode</div></div>
+      <div class="tog"><div class="ic"><svg class="i"><use href="#split"/></svg></div><div>Snap layouts</div></div>
+      <div class="tog"><div class="ic"><svg class="i"><use href="#cam"/></svg></div><div>Screenshot</div></div>
+      <div class="tog on"><div class="ic"><svg class="i"><use href="#power"/></svg></div><div>Power mode<small>Balanced</small></div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px">
+      <div class="slider"><div class="fill" style="width:68%"></div><svg class="i"><use href="#sun"/></svg></div>
+      <div class="slider"><div class="fill" style="width:40%"></div><svg class="i"><use href="#vol"/></svg></div>
+    </div>
+    <!-- media -->
+    <div style="margin-top:14px;border-radius:24px;padding:16px;background:linear-gradient(120deg,#5d87b8,#9ab8de);color:#fff;display:flex;align-items:center;gap:16px">
+      <div class="photo ocean" style="position:relative;width:64px;height:64px;border-radius:16px"></div>
+      <div style="flex:1"><b>Ocean Eyes</b><div style="font-size:13px;opacity:.85">Spotify • Headphones</div><div style="height:4px;border-radius:2px;background:rgba(255,255,255,.35);margin-top:10px"><div style="width:45%;height:4px;border-radius:2px;background:#fff"></div></div></div>
+      <div style="display:flex;gap:22px;align-items:center"><svg viewBox="0 0 24 24" width="22" height="22" fill="#fff"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg><svg viewBox="0 0 24 24" width="30" height="30" fill="#fff"><path d="M7 4h4v16H7zM13 4h4v16h-4z"/></svg><svg viewBox="0 0 24 24" width="22" height="22" fill="#fff"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:22px;font-size:14px;color:var(--ink2)"><b style="color:var(--ink)">Notifications</b><span>Clear all</span></div>
+    <div class="notif"><div class="app sm c-grn"><svg><use href="#chat"/></svg></div><div style="flex:1"><b>WhatsApp • 11 new messages</b><p>Ali: bro did you see the new ui 😂</p></div><small style="color:var(--ink2)">now</small></div>
+    <div class="notif"><div class="app sm c-blu"><svg><use href="#gear"/></svg></div><div style="flex:1"><b>Windows Update</b><p>Updates ready. Restart tonight at 2:00 AM?</p></div><small style="color:var(--ink2)">12m</small></div>
+  </div>
+  <div class="caption">Opens with Win + A, clicking the top-right status icons, or swiping down on a touchscreen — replaces Action Center</div>
+</section>
+
+<!-- ================= 4. APP DRAWER ================= -->
+<section class="screen" id="drawer">
+  <div class="wall dim"></div>
+  <div class="status"><div class="l">8:14&nbsp;&nbsp; Thu, Oct 22</div><div class="r"><svg class="i"><use href="#wifi"/></svg><span class="batt">41</span></div></div>
+  <div class="pillsearch" style="position:absolute;left:400px;top:80px;width:800px">
+    <svg class="i" style="width:22px;height:22px"><use href="#search"/></svg><span>Search</span><svg class="i" style="margin-left:auto"><use href="#dots"/></svg>
+  </div>
+  <div id="grid" style="position:absolute;left:220px;right:220px;top:190px;display:grid;grid-template-columns:repeat(8,1fr);row-gap:34px;justify-items:center"></div>
+  <div style="position:absolute;left:0;right:0;top:830px;display:flex;justify-content:center;gap:8px"><span class="dot" style="background:#2b3442"></span><span class="dot"></span></div>
+  <div style="position:absolute;left:50%;transform:translateX(-50%);bottom:70px;display:flex;gap:12px;align-items:center;padding:10px 16px 10px 10px;border-radius:30px;background:rgba(255,255,255,.7)">
+    <div class="app sm c-blu" style="border-radius:50%"><svg><use href="#user"/></svg></div><b style="font-size:14px">Rayan</b>
+    <span style="width:1px;height:26px;background:#ccd3de;margin:0 6px"></span>
+    <svg class="i" style="color:var(--ink2)"><use href="#gear"/></svg><svg class="i" style="color:var(--ink2);margin-left:10px"><use href="#power"/></svg>
+  </div>
+  <div class="caption">Press the Windows key — replaces the Start menu. All installed Win32 + Store apps, folders supported.</div>
+</section>
+
+<!-- ================= 5. RECENTS ================= -->
+<section class="screen" id="recents">
+  <div class="wall dim"></div>
+  <div style="position:absolute;top:0;left:0;right:0;height:1000px;display:flex;gap:40px;align-items:center;padding-left:170px">
+    <div><div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;margin-left:120px"><div class="app sm c-blu"><svg><use href="#globe"/></svg></div></div>
+      <div class="win" style="position:relative;width:520px;height:560px;padding:20px">
+        <div class="pillsearch" style="background:#eef2f8;height:44px;font-size:14px">youtube.com</div>
+        <div class="photo ocean" style="position:relative;height:250px;margin-top:16px;border-radius:20px"></div>
+        <div style="height:14px;width:70%;border-radius:7px;background:#e3e9f2;margin-top:18px"></div>
+        <div style="height:14px;width:45%;border-radius:7px;background:#e3e9f2;margin-top:10px"></div>
+        <div style="display:flex;gap:12px;margin-top:22px"><div style="flex:1;height:110px;border-radius:16px;background:#e3e9f2"></div><div style="flex:1;height:110px;border-radius:16px;background:#e3e9f2"></div></div>
+      </div></div>
+    <div><div style="display:flex;justify-content:center;margin-bottom:14px"><div class="app sm c-org"><svg><use href="#folder"/></svg></div></div>
+      <div class="win" style="position:relative;width:520px;height:560px;padding:22px">
+        <b style="font-size:22px">My Files</b>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:20px">
+          <div style="height:90px;border-radius:18px;background:#fff1d8"></div><div style="height:90px;border-radius:18px;background:#e0ecff"></div><div style="height:90px;border-radius:18px;background:#e5f8ec"></div><div style="height:90px;border-radius:18px;background:#fbe4ef"></div>
+        </div>
+        <div style="margin-top:20px">
+          <div class="setrow" style="padding:12px 0"><svg class="i" style="color:#f39a1e;width:24px;height:24px"><use href="#folder"/></svg><div class="t"><b style="font-size:14px">Documents</b><span>124 items</span></div></div>
+          <div class="setrow" style="padding:12px 0"><svg class="i" style="color:#f39a1e;width:24px;height:24px"><use href="#folder"/></svg><div class="t"><b style="font-size:14px">Downloads</b><span>58 items</span></div></div>
+          <div class="setrow" style="padding:12px 0"><svg class="i" style="color:#f39a1e;width:24px;height:24px"><use href="#folder"/></svg><div class="t"><b style="font-size:14px">Pictures</b><span>2,341 items</span></div></div>
+        </div>
+      </div></div>
+    <div><div style="display:flex;justify-content:center;margin-bottom:14px"><div class="app sm c-dk"><svg><use href="#term"/></svg></div></div>
+      <div class="win" style="position:relative;width:520px;height:560px;padding:22px;background:#1f2430;color:#cfe1ff;font:14px/1.7 'JetBrains Mono',monospace">
+        PS C:\Users\Rayan&gt; winget upgrade<br><span style="color:#7fa3cf">Name &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Version &nbsp;Available</span><br>Chrome &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;129.0 &nbsp;&nbsp;&nbsp;130.0<br>VS Code &nbsp;&nbsp;&nbsp;1.94 &nbsp;&nbsp;&nbsp;&nbsp;1.95<br>PS C:\Users\Rayan&gt; _
+      </div></div>
+  </div>
+  <div style="position:absolute;left:50%;transform:translateX(-50%);bottom:90px;padding:12px 30px;border-radius:24px;background:rgba(255,255,255,.75);font-size:15px;font-weight:600">Close all</div>
+  <div class="nav"><svg class="i" style="color:var(--accent)"><use href="#recent"/></svg><svg class="i"><use href="#home"/></svg><svg class="i"><use href="#back"/></svg></div>
+  <div class="caption">Alt + Tab / Win + Tab — swipe a card up to close, hold the icon for split view / pop-up view</div>
+</section>
+
+<!-- ================= 6. MULTI-WINDOW (desktop work) ================= -->
+<section class="screen" id="multi">
+  <div class="wall"></div>
+  <div class="status"><div class="l">8:14&nbsp;&nbsp; Thu, Oct 22 &nbsp;<svg class="i"><use href="#chat"/></svg></div><div class="r"><svg class="i"><use href="#wifi"/></svg><span class="batt">41</span></div></div>
+  <!-- split left -->
+  <div class="win" style="left:18px;top:52px;width:930px;height:810px">
+    <div class="bar"><div class="handle"></div><div class="ctrls"><span><svg class="i"><use href="#min"/></svg></span><span><svg class="i"><use href="#max"/></svg></span><span><svg class="i"><use href="#x"/></svg></span></div></div>
+    <div style="display:flex;height:776px">
+      <div style="width:220px;background:#f5f7fb;padding:18px;font-size:14px;color:var(--ink2);line-height:2.4">
+        <b style="color:var(--ink);font-size:18px">Files</b><br>📁 Documents<br>📁 Downloads<br>🖼️ Pictures<br>🎵 Music<br>💾 Local Disk (C:)<br>💾 Data (D:)
+      </div>
+      <div style="flex:1;padding:22px">
+        <div class="pillsearch" style="background:#eef2f8;height:44px;font-size:14px">This PC › Pictures › Wallpapers</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:20px">
+          <div class="photo ocean" style="position:relative;height:120px;border-radius:18px"></div>
+          <div class="photo dice" style="position:relative;height:120px;border-radius:18px"></div>
+          <div class="photo swan" style="position:relative;height:120px;border-radius:18px"></div>
+          <div class="photo cd" style="position:relative;height:120px;border-radius:18px"></div>
+          <div class="photo tiles" style="position:relative;height:120px;border-radius:18px"></div>
+          <div class="photo quote" style="position:relative;height:120px;border-radius:18px;font-size:22px">do what<br>you love</div>
+          <div class="photo" style="position:relative;height:120px;border-radius:18px;background:linear-gradient(135deg,#c9dbf2,#eef4fc)"></div>
+          <div class="photo" style="position:relative;height:120px;border-radius:18px;background:linear-gradient(135deg,#a9c5ec,#5d87b8)"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- split divider -->
+  <div style="position:absolute;left:953px;top:420px;width:6px;height:70px;border-radius:3px;background:#a6b2c4"></div>
+  <!-- split right -->
+  <div class="win" style="left:964px;top:52px;width:618px;height:810px">
+    <div class="bar"><div class="handle"></div><div class="ctrls"><span><svg class="i"><use href="#min"/></svg></span><span><svg class="i"><use href="#max"/></svg></span><span><svg class="i"><use href="#x"/></svg></span></div></div>
+    <div style="padding:10px 22px">
+      <div class="pillsearch" style="background:#eef2f8;height:44px;font-size:14px"><svg class="i"><use href="#globe"/></svg>google.com/search?q=one+ui+wallpapers</div>
+      <div class="photo ocean" style="position:relative;height:230px;margin-top:18px;border-radius:20px"></div>
+      <div style="height:16px;width:80%;border-radius:8px;background:#e3e9f2;margin-top:20px"></div>
+      <div style="height:12px;width:60%;border-radius:6px;background:#eef2f8;margin-top:12px"></div>
+      <div style="height:12px;width:70%;border-radius:6px;background:#eef2f8;margin-top:8px"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px"><div class="photo dice" style="position:relative;height:160px;border-radius:18px"></div><div class="photo cd" style="position:relative;height:160px;border-radius:18px"></div></div>
+    </div>
+  </div>
+  <!-- pop-up (floating) window -->
+  <div class="win" style="left:1130px;top:520px;width:400px;height:300px;border:3px solid #9fc0f2">
+    <div class="bar"><div class="handle"></div><div class="ctrls"><span><svg class="i"><use href="#min"/></svg></span><span><svg class="i"><use href="#x"/></svg></span></div></div>
+    <div style="padding:6px 18px;display:flex;flex-direction:column;gap:10px">
+      <div style="align-self:flex-start;background:#eef2f8;padding:10px 14px;border-radius:18px 18px 18px 4px;font-size:14px">bro is that the samsung ui on windows??</div>
+      <div style="align-self:flex-end;background:#d7f5df;padding:10px 14px;border-radius:18px 18px 4px 18px;font-size:14px">yeahh one ui on my pc 😎</div>
+      <div style="align-self:flex-start;background:#eef2f8;padding:10px 14px;border-radius:18px 18px 18px 4px;font-size:14px">send it rn</div>
+    </div>
+  </div>
+  <!-- persistent taskbar-dock (like One UI tablet taskbar) -->
+  <div style="position:absolute;left:0;right:0;bottom:0;height:120px;background:rgba(240,245,252,.8);backdrop-filter:blur(20px);display:flex;align-items:center;padding:0 30px;gap:22px">
+    <div class="app sm c-gry" style="background:#fff;color:var(--ink2)"><svg style="stroke:#5d6878"><use href="#home"/></svg></div>
+    <span style="width:2px;height:36px;background:#c2cbd8"></span>
+    <div class="app sm c-red"><svg><use href="#note"/></svg></div>
+    <div style="text-align:center"><div class="app sm c-org"><svg><use href="#folder"/></svg></div><div style="width:6px;height:6px;border-radius:3px;background:#3e7bfa;margin:5px auto 0"></div></div>
+    <div style="text-align:center"><div class="app sm c-blu"><svg><use href="#globe"/></svg></div><div style="width:6px;height:6px;border-radius:3px;background:#3e7bfa;margin:5px auto 0"></div></div>
+    <div class="app sm c-dk"><svg><use href="#term"/></svg></div>
+    <div class="app sm c-pur"><svg><use href="#code"/></svg></div>
+    <div style="text-align:center"><div class="app sm c-grn"><svg><use href="#chat"/></svg></div><div style="width:6px;height:6px;border-radius:3px;background:#3e7bfa;margin:5px auto 0"></div></div>
+    <span style="width:2px;height:36px;background:#c2cbd8"></span>
+    <div style="font-size:12px;color:var(--ink2)">Recent</div>
+    <div class="app sm c-red"><svg><use href="#play"/></svg></div>
+    <div class="app sm c-tea"><svg><use href="#music"/></svg></div>
+    <div style="margin-left:auto;display:flex;gap:70px;color:var(--ink2);padding-right:60px"><svg class="i" style="width:22px;height:22px"><use href="#recent"/></svg><svg class="i" style="width:22px;height:22px"><use href="#home"/></svg><svg class="i" style="width:22px;height:22px"><use href="#back"/></svg></div>
+  </div>
+</section>
+
+<!-- ================= 7. SHELL SETTINGS ================= -->
+<section class="screen" id="settings">
+  <div class="wall"></div>
+  <div class="win" style="left:150px;top:50px;width:1300px;height:900px;background:#f2f5fa">
+    <div class="bar"><div class="handle"></div><div class="ctrls"><span><svg class="i"><use href="#min"/></svg></span><span><svg class="i"><use href="#max"/></svg></span><span><svg class="i"><use href="#x"/></svg></span></div></div>
+    <div style="display:flex;height:866px">
+      <div style="width:360px;padding:20px 26px">
+        <h1>OneShell</h1>
+        <div class="pillsearch" style="margin-top:18px;background:#e6ecf5;height:44px;font-size:14px"><svg class="i"><use href="#search"/></svg>Search settings</div>
+        <div class="group" style="margin-top:20px">
+          <div class="setrow" style="background:#e3edff"><div class="app sm c-pur" style="width:38px;height:38px;border-radius:13px"><svg style="width:22px;height:22px"><use href="#photo"/></svg></div><div class="t"><b style="font-size:15px">Wallpaper & style</b></div></div>
+          <div class="setrow"><div class="app sm c-blu" style="width:38px;height:38px;border-radius:13px"><svg style="width:22px;height:22px"><use href="#home"/></svg></div><div class="t"><b style="font-size:15px">Home screen</b></div></div>
+          <div class="setrow"><div class="app sm c-tea" style="width:38px;height:38px;border-radius:13px"><svg style="width:22px;height:22px"><use href="#lock"/></svg></div><div class="t"><b style="font-size:15px">Lock screen</b></div></div>
+          <div class="setrow"><div class="app sm c-org" style="width:38px;height:38px;border-radius:13px"><svg style="width:22px;height:22px"><use href="#recent"/></svg></div><div class="t"><b style="font-size:15px">Taskbar & navigation</b></div></div>
+          <div class="setrow"><div class="app sm c-grn" style="width:38px;height:38px;border-radius:13px"><svg style="width:22px;height:22px"><use href="#split"/></svg></div><div class="t"><b style="font-size:15px">Multi window</b></div></div>
+          <div class="setrow"><div class="app sm c-pnk" style="width:38px;height:38px;border-radius:13px"><svg style="width:22px;height:22px"><use href="#spark"/></svg></div><div class="t"><b style="font-size:15px">Animations & sounds</b></div></div>
+          <div class="setrow"><div class="app sm c-gry" style="width:38px;height:38px;border-radius:13px"><svg style="width:22px;height:22px"><use href="#gear"/></svg></div><div class="t"><b style="font-size:15px">About OneShell</b></div></div>
+        </div>
+      </div>
+      <div style="flex:1;padding:20px 40px;overflow:hidden">
+        <h1 style="font-size:26px">Wallpaper & style</h1>
+        <div style="display:flex;gap:24px;margin-top:20px">
+          <div style="width:330px;height:206px;border-radius:22px;position:relative;overflow:hidden;background:linear-gradient(160deg,#e6eefa,#d4e2f4);box-shadow:0 4px 18px rgba(60,90,140,.15)">
+            <div style="position:absolute;top:50px;left:0;right:0;text-align:center;font-weight:200;font-size:44px;color:#6e7480">08:16</div>
+            <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:11px;color:var(--ink2)">Lock screen</div></div>
+          <div style="width:330px;height:206px;border-radius:22px;position:relative;overflow:hidden;background:linear-gradient(160deg,#e6eefa,#d4e2f4);box-shadow:0 4px 18px rgba(60,90,140,.15)">
+            <div class="photo ocean" style="right:20px;top:30px;width:110px;height:50px;border-radius:12px"></div>
+            <div class="photo quote" style="right:80px;top:90px;width:50px;height:50px;border-radius:12px;font-size:10px">do what<br>you love</div>
+            <div style="position:absolute;left:24px;top:40px;font-size:26px;font-weight:600">8:14</div>
+            <div style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:6px"><i class="app c-red" style="width:18px;height:18px;border-radius:6px"></i><i class="app c-org" style="width:18px;height:18px;border-radius:6px"></i><i class="app c-blu" style="width:18px;height:18px;border-radius:6px"></i><i class="app c-grn" style="width:18px;height:18px;border-radius:6px"></i></div>
+            <div style="position:absolute;bottom:40px;left:0;right:0;text-align:center;font-size:11px;color:var(--ink2)">Home screen</div></div>
+        </div>
+        <div style="margin-top:28px;font-weight:600;font-size:15px">Color palette <span style="font-weight:400;color:var(--ink2);font-size:13px">— picked from your wallpaper</span></div>
+        <div style="display:flex;gap:16px;margin-top:14px">
+          <div style="width:70px;height:70px;border-radius:50%;background:conic-gradient(#3e7bfa 0 50%,#c9dbf2 50% 75%,#eef4fc 75%);outline:3px solid #3e7bfa;outline-offset:4px"></div>
+          <div style="width:70px;height:70px;border-radius:50%;background:conic-gradient(#7a8aa3 0 50%,#d6dde8 50% 75%,#f2f4f8 75%)"></div>
+          <div style="width:70px;height:70px;border-radius:50%;background:conic-gradient(#8d6be8 0 50%,#ddd2fb 50% 75%,#f5f1ff 75%)"></div>
+          <div style="width:70px;height:70px;border-radius:50%;background:conic-gradient(#e86b9b 0 50%,#fbd2e2 50% 75%,#fff1f6 75%)"></div>
+          <div style="width:70px;height:70px;border-radius:50%;background:conic-gradient(#2fae73 0 50%,#c9f0db 50% 75%,#effbf4 75%)"></div>
+        </div>
+        <div class="group" style="margin-top:26px">
+          <div class="setrow"><div class="t"><b>Replace Windows taskbar with One UI dock</b><span>Hides the Windows 10/11 taskbar while OneShell runs</span></div><div class="sw"></div></div>
+          <div class="setrow"><div class="t"><b>Replace Start menu with app drawer</b><span>Windows key opens the One UI app grid</span></div><div class="sw"></div></div>
+          <div class="setrow"><div class="t"><b>Show Android-style navigation buttons</b><span>Recents • Home • Back on the right side of the dock</span></div><div class="sw"></div></div>
+          <div class="setrow"><div class="t"><b>Rounded windows & One UI title bars</b><span>Applies to supported apps (others keep Windows frames)</span></div><div class="sw"></div></div>
+          <div class="setrow"><div class="t"><b>Dark mode</b><span>Follow Windows setting</span></div><div class="sw off"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+const apps=[["Notes","c-red","note"],["My Files","c-org","folder"],["Chrome","c-blu","globe"],["Messages","c-wht","chat"],["Terminal","c-dk","term"],["VS Code","c-pur","code"],["Settings","c-gry","gear"],["YouTube","c-red","play"],
+["WhatsApp","c-grn","chat"],["Gemini","c-wht","spark"],["Spotify","c-grn","music"],["Photos","c-pnk","photo"],["Mail","c-blu","mail"],["Calendar","c-tea","cal"],["Store","c-blu","store"],["Calculator","c-org","calc"],
+["Xbox","c-grn","game"],["Clock","c-dk","clock"],["Camera","c-gry","cam"],["Contacts","c-red","user"],["Word","c-blu","note"],["Excel","c-grn","calc"],["PowerPoint","c-red","photo"],["Discord","c-pur","chat"],
+["Steam","c-dk","game"],["Notepad","c-tea","note"],["Paint","c-pnk","edit"],["Snipping Tool","c-pur","cam"],["Task Manager","c-gry","recent"],["Control Panel","c-blu","gear"],["Device care","c-tea","clean"],["Tools","c-gry","folder"]];
+document.getElementById('grid').innerHTML=apps.map(a=>`<div style="text-align:center;width:110px"><div class="app ${a[1]}" style="margin:0 auto"><svg><use href="#${a[2]}"/></svg></div><div class="lbl">${a[0]}</div></div>`).join('');
+const id=new URLSearchParams(location.search).get('s')||(location.hash||'#home').slice(1);(document.querySelector('section#'+id)||document.querySelector('section#s-'+id)).classList.add('on');
+</script>
+</body></html>
