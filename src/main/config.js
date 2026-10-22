@@ -10,7 +10,8 @@ const DEFAULTS = {
   hookWinA: true,
   hookWinTab: true,
   // Wallpaper & style
-  wallpaper: null,          // file path, null = built-in One UI blue
+  wallpaper: null,          // file path; overrides wallpaperPreset
+  wallpaperPreset: 'blue',  // built-in wallpaper: blue, sky, ocean, lavender, peach, mint, sunset, night
   accent: '#3e7bfa',
   darkMode: false,
   photos: [null, null, null, null, null, null],

@@ -31,6 +31,7 @@ contextBridge.exposeInMainWorld('oneshell', {
   power: invoke('power'),
   optimize: invoke('optimize'),
   pickImage: invoke('pickImage'),
+  windowsWallpaper: invoke('wallpaper:windows'),
   openSettings: invoke('settings:open'),
   openUri: invoke('open:uri'),
   closeSelf: invoke('self:close'),

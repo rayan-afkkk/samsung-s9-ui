@@ -88,8 +88,19 @@
     return `<div class="app letter ${color} ${size}" ${attrs}>${esc((a.name || '?').trim()[0] || '?').toUpperCase()}${t}</div>`;
   }
 
+  // Built-in wallpapers (pure CSS, see .wp-* in ui.css). 'blue' is the One UI default.
+  const WALLPAPERS = [
+    ['blue', 'One UI blue'], ['sky', 'Sky'], ['ocean', 'Ocean'], ['lavender', 'Lavender'],
+    ['peach', 'Peach'], ['mint', 'Mint'], ['sunset', 'Sunset'], ['night', 'Night'],
+  ];
+
+  function wallClass(dim) {
+    const preset = !cfg.wallpaperUrl && cfg.wallpaperPreset && cfg.wallpaperPreset !== 'blue' ? ` wp-${cfg.wallpaperPreset}` : '';
+    return `wall${cfg.wallpaperUrl ? ' custom' : ''}${preset}${dim ? ' dim' : ''}`;
+  }
+
   function wall(dim) {
-    return `<div class="wall${cfg.wallpaperUrl ? ' custom' : ''}${dim ? ' dim' : ''}"></div>`;
+    return `<div class="${wallClass(dim)}"></div>`;
   }
 
   // Default art for the six photo widgets (same as the mockup) until the user picks photos.
@@ -134,6 +145,11 @@
     toast('Optimizing…');
     const r = await api.optimize();
     toast(r ? `Freed ${r.freedMB} MB of memory` : 'Your PC is already optimized');
+  }
+
+  async function pickWallpaper() {
+    const file = await api.pickImage();
+    if (file) api.setConfig({ wallpaper: file });
   }
 
   async function changePhoto(i) {
@@ -218,7 +234,8 @@
       root.oncontextmenu = (e) => {
         e.preventDefault();
         menu(e.clientX, e.clientY, [
-          ['Wallpaper & style', 'photo', () => api.openSettings('style')],
+          ['Change wallpaper', 'photo', () => api.openSettings('style')],
+          ['Choose wallpaper from PC', 'folder', pickWallpaper],
           ['Home screen settings', 'home', () => api.openSettings('home')],
           ['OneShell settings', 'gear', () => api.openSettings()],
         ]);
@@ -824,10 +841,15 @@
         };
       });
       const bind = (id, fn) => { const el = $(id, b); if (el) el.onclick = fn; };
-      bind('#pick-wall', async () => { const f = await api.pickImage(); if (f) api.setConfig({ wallpaper: f }); });
-      bind('#pick-wall2', async () => { const f = await api.pickImage(); if (f) api.setConfig({ wallpaper: f }); });
-      bind('#pick-wall-btn', async () => { const f = await api.pickImage(); if (f) api.setConfig({ wallpaper: f }); });
-      bind('#reset-wall', () => api.setConfig({ wallpaper: null }));
+      bind('#pick-wall', pickWallpaper);
+      bind('#pick-wall2', pickWallpaper);
+      bind('#pick-wall-btn', pickWallpaper);
+      bind('#windows-wall', async () => {
+        const f = await api.windowsWallpaper();
+        if (f) api.setConfig({ wallpaper: f });
+        else toast('Couldn\'t find your Windows wallpaper');
+      });
+      $$('[data-wp]', b).forEach((t) => (t.onclick = () => api.setConfig({ wallpaperPreset: t.dataset.wp, wallpaper: null })));
       bind('#pick-lock', async () => { const f = await api.pickImage(); if (f) api.setConfig({ lockPhoto: f }); });
       bind('#reset-lock', () => api.setConfig({ lockPhoto: null }));
       bind('#save-city', () => api.setConfig({ city: $('#city', b).value.trim() }));
@@ -844,21 +866,28 @@
       if (city) city.onkeydown = (e) => { if (e.key === 'Enter') api.setConfig({ city: city.value.trim() }); };
     },
     sec_style() {
-      const wallStyle = cfg.wallpaperUrl ? `background:${css(cfg.wallpaperUrl)} center/cover` : 'background:linear-gradient(160deg,#e6eefa,#d4e2f4)';
+      const current = cfg.wallpaperUrl ? null : cfg.wallpaperPreset || 'blue';
       return `
         <h1 style="font-size:26px">Wallpaper &amp; style</h1>
         <div style="display:flex;gap:24px;margin-top:20px">
-          <div class="preview" id="pick-wall" style="${wallStyle}">
+          <div class="preview" id="pick-wall"><div class="${wallClass(false)}"></div>
             <div style="position:absolute;top:50px;left:0;right:0;text-align:center;font-weight:200;font-size:44px;color:#6e7480" data-clock="pad"></div>
             <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:11px;color:var(--ink2)">Lock screen</div></div>
-          <div class="preview" id="pick-wall2" style="${wallStyle}">
+          <div class="preview" id="pick-wall2"><div class="${wallClass(false)}"></div>
             <div class="photo ocean" style="right:20px;top:30px;width:110px;height:50px;border-radius:12px"></div>
             <div class="photo quote" style="right:80px;top:90px;width:50px;height:50px;border-radius:12px;font-size:10px">do what<br>you love</div>
             <div style="position:absolute;left:24px;top:40px;font-size:26px;font-weight:600" data-clock></div>
             <div style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:6px"><i class="app c-red" style="width:18px;height:18px;border-radius:6px"></i><i class="app c-org" style="width:18px;height:18px;border-radius:6px"></i><i class="app c-blu" style="width:18px;height:18px;border-radius:6px"></i><i class="app c-grn" style="width:18px;height:18px;border-radius:6px"></i></div>
             <div style="position:absolute;bottom:40px;left:0;right:0;text-align:center;font-size:11px;color:var(--ink2)">Home screen</div></div>
         </div>
-        <div style="display:flex;gap:10px;margin-top:14px"><button class="btn" id="pick-wall-btn">Change wallpaper</button>${cfg.wallpaper ? '<button class="btn ghost" id="reset-wall">Use default</button>' : ''}</div>
+        <div class="sec-title">Wallpapers</div>
+        <div class="wp-grid">
+          ${WALLPAPERS.map(([id, label]) => `<div class="wp-tile${current === id ? ' on' : ''}" data-wp="${id}"><div class="wall${id === 'blue' ? '' : ` wp-${id}`}"></div><span>${label}</span></div>`).join('')}
+        </div>
+        <div style="display:flex;gap:10px;margin-top:14px">
+          <button class="btn" id="pick-wall-btn">Choose from your PC</button>
+          ${cfg.platform === 'win32' || !cfg.platform ? '<button class="btn ghost" id="windows-wall">Use my Windows wallpaper</button>' : ''}
+        </div>
         <div class="sec-title">Color palette <span style="font-weight:400;color:var(--ink2);font-size:13px">— picked from your wallpaper</span></div>
         <div style="display:flex;gap:16px;margin-top:14px">
           ${ACCENTS.map(([a, b2, c]) => `<div class="swatch${(cfg.accent || '#3e7bfa') === a ? ' on' : ''}" data-accent="${a}" style="background:conic-gradient(${a} 0 50%,${b2} 50% 75%,${c} 75%)"></div>`).join('')}

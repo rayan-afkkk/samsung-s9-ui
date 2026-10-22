@@ -29,6 +29,12 @@ namespace OneShell
         public static int Main(string[] argv)
         {
             try { Native.SetProcessDPIAware(); } catch { }
+            AppDomain.CurrentDomain.UnhandledException += delegate (object sender, UnhandledExceptionEventArgs e)
+            {
+                // Last chance: report it and never leave the user without a taskbar.
+                try { Console.Error.WriteLine("fatal: " + e.ExceptionObject); } catch { }
+                Cleanup();
+            };
             Console.InputEncoding = new UTF8Encoding(false);
             var stdout = new StreamWriter(Console.OpenStandardOutput(), new UTF8Encoding(false));
             stdout.AutoFlush = true;
@@ -66,11 +72,21 @@ namespace OneShell
             try { WorkArea.Restore(); } catch { }
         }
 
+        // JavaScriptSerializer isn't thread-safe and we serialize from the hook, watchdog and stdin threads.
+        static string Serialize(object o)
+        {
+            lock (Json) return Json.Serialize(o);
+        }
+
         public static void Emit(string name, Dictionary<string, object> data)
         {
-            var o = data ?? new Dictionary<string, object>();
-            o["event"] = name;
-            Outbox.Add(Json.Serialize(o));
+            try
+            {
+                var o = data ?? new Dictionary<string, object>();
+                o["event"] = name;
+                Outbox.Add(Serialize(o));
+            }
+            catch (Exception ex) { try { Console.Error.WriteLine("emit " + name + ": " + ex.Message); } catch { } }
         }
 
         static void Handle(string line)
@@ -78,18 +94,19 @@ namespace OneShell
             object id = null;
             try
             {
-                var req = Json.Deserialize<Dictionary<string, object>>(line);
+                Dictionary<string, object> req;
+                lock (Json) req = Json.Deserialize<Dictionary<string, object>>(line);
                 id = req.ContainsKey("id") ? req["id"] : null;
                 var cmd = (string)req["cmd"];
                 var args = req.ContainsKey("args") && req["args"] != null
                     ? (Dictionary<string, object>)req["args"]
                     : new Dictionary<string, object>();
                 var result = Commands.Run(cmd, args);
-                Outbox.Add(Json.Serialize(new Dictionary<string, object> { { "id", id }, { "ok", true }, { "result", result } }));
+                Outbox.Add(Serialize(new Dictionary<string, object> { { "id", id }, { "ok", true }, { "result", result } }));
             }
             catch (Exception ex)
             {
-                Outbox.Add(Json.Serialize(new Dictionary<string, object> { { "id", id }, { "ok", false }, { "error", ex.Message } }));
+                try { Outbox.Add(Serialize(new Dictionary<string, object> { { "id", id }, { "ok", false }, { "error", ex.Message } })); } catch { }
             }
         }
     }
@@ -185,6 +202,18 @@ namespace OneShell
 
         static IntPtr KeyboardProc(int nCode, IntPtr wParam, IntPtr lParam)
         {
+            // An exception escaping a native callback kills the whole process, so contain it.
+            try
+            {
+                IntPtr r = HandleKey(nCode, wParam, lParam);
+                if (r != IntPtr.Zero) return r;
+            }
+            catch (Exception ex) { try { Console.Error.WriteLine("hook: " + ex.Message); } catch { } }
+            return Native.CallNextHookEx(IntPtr.Zero, nCode, wParam, lParam);
+        }
+
+        static IntPtr HandleKey(int nCode, IntPtr wParam, IntPtr lParam)
+        {
             if (nCode >= 0)
             {
                 var kb = (Native.KBDLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(Native.KBDLLHOOKSTRUCT));
@@ -233,7 +262,7 @@ namespace OneShell
                     }
                 }
             }
-            return Native.CallNextHookEx(IntPtr.Zero, nCode, wParam, lParam);
+            return IntPtr.Zero;
         }
 
         static void ForegroundProc(IntPtr hook, uint evt, IntPtr hwnd, int idObject, int idChild, uint thread, uint time)
@@ -315,6 +344,10 @@ namespace OneShell
                 Right = Native.GetSystemMetrics(Native.SM_CXSCREEN),
                 Bottom = Native.GetSystemMetrics(Native.SM_CYSCREEN) - bottom
             };
+            // Setting the work area broadcasts a settings change to every window; skip no-ops.
+            var cur = new Native.RECT();
+            Native.SystemParametersInfo(Native.SPI_GETWORKAREA, 0, ref cur, 0);
+            if (cur.Left == r.Left && cur.Top == r.Top && cur.Right == r.Right && cur.Bottom == r.Bottom) return;
             Native.SystemParametersInfo(Native.SPI_SETWORKAREA, 0, ref r, Native.SPIF_SENDCHANGE);
         }
 

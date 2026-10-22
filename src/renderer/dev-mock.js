@@ -53,7 +53,7 @@
 
   let config = {
     replaceTaskbar: true, replaceStart: true, navButtons: true, hookWinA: true, hookWinTab: true,
-    wallpaper: null, wallpaperUrl: null, accent: '#3e7bfa', darkMode: q.get('dark') === '1',
+    wallpaper: null, wallpaperUrl: null, wallpaperPreset: q.get('wp') || 'blue', accent: '#3e7bfa', darkMode: q.get('dark') === '1',
     photos: [null, null, null, null, null, null], photoUrls: [null, null, null, null, null, null],
     lockPhoto: null, lockPhotoUrl: null, city: '', units: 'C', showSearch: true,
     pinned: ['Notes', 'File Explorer', 'Google Chrome', 'Messages', 'Terminal', 'Visual Studio Code', 'Settings'],
@@ -96,6 +96,7 @@
     hideOverlay: () => { emit('overlay', { mode: null }); return Promise.resolve(); },
     optimize: () => Promise.resolve({ freedMB: 512 }),
     pickImage: () => Promise.resolve(null),
+    windowsWallpaper: () => Promise.resolve(null),
     dockMouse: () => {},
     onConfig: on('config'), onState: on('state'), onDock: on('dock'), onOverlay: on('overlay'), onSettingsSection: on('settings:section'),
   };

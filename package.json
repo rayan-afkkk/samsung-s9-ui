@@ -1,7 +1,7 @@
 {
   "name": "oneshell",
   "productName": "OneShell",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Samsung One UI (Galaxy Tab S9) style shell for Windows 10 and 11",
   "main": "src/main/main.js",
   "author": "rayan-afkkk",

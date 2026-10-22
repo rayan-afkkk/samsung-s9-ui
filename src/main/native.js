@@ -28,11 +28,17 @@ class Native extends EventEmitter {
       console.warn('[native] helper not available, running without Windows integration');
       return;
     }
-    this.proc = spawn(exe, [], { stdio: ['pipe', 'pipe', 'inherit'], windowsHide: true });
+    const proc = spawn(exe, [], { stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true });
+    this.proc = proc;
     this.available = true;
+    // Writing to a helper that just died must never crash the shell.
+    proc.stdin.on('error', (err) => console.warn('[native] stdin:', err.message));
+    proc.on('error', (err) => console.warn('[native] spawn:', err.message));
+    proc.stderr.setEncoding('utf8');
+    proc.stderr.on('data', (d) => console.warn('[native]', d.trim()));
     let buf = '';
-    this.proc.stdout.setEncoding('utf8');
-    this.proc.stdout.on('data', (chunk) => {
+    proc.stdout.setEncoding('utf8');
+    proc.stdout.on('data', (chunk) => {
       buf += chunk;
       let i;
       while ((i = buf.indexOf('\n')) >= 0) {
@@ -41,14 +47,15 @@ class Native extends EventEmitter {
         if (line) this.onLine(line);
       }
     });
-    this.proc.on('exit', (code) => {
+    proc.on('exit', (code) => {
+      if (this.proc !== proc) return;
+      this.proc = null;
       this.available = false;
-      for (const { reject } of this.pending.values()) reject(new Error('helper exited'));
+      for (const { resolve } of this.pending.values()) resolve(null);
       this.pending.clear();
       if (!this.stopping) {
         console.warn('[native] helper exited with', code, '- restarting');
         setTimeout(() => this.start(), 1000);
-        this.emit('restarted');
       }
     });
   }
@@ -68,11 +75,17 @@ class Native extends EventEmitter {
   }
 
   call(cmd, args = {}) {
-    if (!this.available || !this.proc) return Promise.resolve(null);
+    const proc = this.proc;
+    if (!this.available || !proc || !proc.stdin.writable || proc.stdin.destroyed) return Promise.resolve(null);
     const id = this.nextId++;
     return new Promise((resolve, reject) => {
       this.pending.set(id, { resolve, reject });
-      this.proc.stdin.write(JSON.stringify({ id, cmd, args }) + '\n');
+      try {
+        proc.stdin.write(JSON.stringify({ id, cmd, args }) + '\n');
+      } catch (err) {
+        this.pending.delete(id);
+        reject(err);
+      }
     }).catch((err) => {
       console.warn(`[native] ${cmd} failed:`, err.message);
       return null;

@@ -113,7 +113,7 @@ h1{font-size:32px;font-weight:700}
 
 /* dark mode */
 .dark{--bg1:#121722;--ink:#e6ebf3;--ink2:#9aa6b8;--card:rgba(40,48,62,.6)}
-.dark .wall{background:radial-gradient(900px 500px at 15% 110%,#22324d 0,transparent 60%),radial-gradient(700px 500px at 95% -10%,#1d2a40 0,transparent 60%),linear-gradient(160deg,#141b28,#0f1520)}
+.dark .wall:not([class*="wp-"]){background:radial-gradient(900px 500px at 15% 110%,#22324d 0,transparent 60%),radial-gradient(700px 500px at 95% -10%,#1d2a40 0,transparent 60%),linear-gradient(160deg,#141b28,#0f1520)}
 .dark .wall.custom{background:var(--wall-img) center/cover no-repeat}
 .dark .w[style*="255,255,255"],.dark .group,.dark .notif,.dark .win{background:#1e2533!important;color:var(--ink)}
 .dark .tog{background:#283142}.dark .tog .ic{background:#344056;color:var(--ink)}
@@ -202,3 +202,20 @@ body.v-settings .win{left:0;top:0;right:0;bottom:0;width:auto!important;height:a
 .settings-body{flex:1;padding:20px 40px;overflow-y:auto}
 .sec-title{margin-top:28px;font-weight:600;font-size:15px}
 .note{font-size:13px;color:var(--ink2);margin-top:8px;line-height:1.5}
+
+/* built-in wallpapers */
+.wp-sky{background:radial-gradient(900px 600px at 80% 0%,#ffffff 0,transparent 60%),linear-gradient(180deg,#b9d6ff 0%,#dcebff 55%,#f4f8ff 100%)}
+.wp-ocean{background:repeating-linear-gradient(172deg,rgba(255,255,255,0) 0 40px,rgba(255,255,255,.35) 46px 50px,rgba(255,255,255,0) 58px 90px),linear-gradient(180deg,#a9c6e8 0,#7fa6cf 45%,#cfe0f2 85%,#eef4fb 100%)}
+.wp-lavender{background:radial-gradient(900px 600px at 15% 10%,#efe8ff 0,transparent 60%),radial-gradient(800px 600px at 90% 95%,#d2c3fa 0,transparent 60%),linear-gradient(160deg,#ebe4ff,#ddd3fb)}
+.wp-peach{background:radial-gradient(900px 600px at 10% 90%,#ffd2c2 0,transparent 60%),radial-gradient(800px 600px at 90% 10%,#ffd6e3 0,transparent 60%),linear-gradient(160deg,#fff0ea,#ffe2dc)}
+.wp-mint{background:radial-gradient(900px 600px at 85% 15%,#d6f6e8 0,transparent 60%),radial-gradient(800px 600px at 10% 95%,#b5e8d6 0,transparent 60%),linear-gradient(160deg,#ecfaf4,#d9f3e9)}
+.wp-sunset{background:linear-gradient(160deg,#ffe0bd 0%,#ffc3c3 45%,#d9c6ff 100%)}
+.wp-night{background:radial-gradient(900px 600px at 80% 10%,#3b4f80 0,transparent 60%),radial-gradient(700px 500px at 10% 100%,#2c3b66 0,transparent 60%),linear-gradient(160deg,#1c2541,#121a30)}
+/* light text on the night wallpaper */
+.wp-night ~ .status,.wp-night ~ .stage > .w[style*="transparent"],.wp-night ~ .stage .lockdate,.wp-night ~ .stage .lockclock{color:#e6ebf3}
+.wp-night ~ .stage > .w[style*="transparent"] div{color:#e6ebf3!important}
+.wp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:14px}
+.wp-tile{position:relative;height:110px;border-radius:18px;overflow:hidden;cursor:pointer;box-shadow:0 3px 12px rgba(60,90,140,.12)}
+.wp-tile.on{outline:3px solid var(--accent);outline-offset:3px}
+.wp-tile span{position:absolute;left:12px;bottom:10px;font-size:13px;font-weight:600;color:#2b3442;background:rgba(255,255,255,.7);padding:3px 10px;border-radius:10px}
+.preview > .wall{border-radius:inherit}

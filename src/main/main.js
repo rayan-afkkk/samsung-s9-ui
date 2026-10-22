@@ -39,6 +39,20 @@ if (!app.requestSingleInstanceLock()) {
   app.quit();
 }
 
+// A shell must keep running: log unexpected errors to %APPDATA%\OneShell\oneshell.log
+// instead of showing Electron's crash dialog.
+const fs = require('fs');
+function logLine(...parts) {
+  const line = `[${new Date().toISOString()}] ${parts.map((p) => (p && p.stack) || String(p)).join(' ')}\n`;
+  try { fs.appendFileSync(path.join(app.getPath('userData'), 'oneshell.log'), line); } catch {}
+}
+for (const level of ['log', 'warn', 'error']) {
+  const orig = console[level].bind(console);
+  console[level] = (...a) => { orig(...a); if (level !== 'log') logLine(level, ...a); };
+}
+process.on('uncaughtException', (err) => console.error('uncaught', err));
+process.on('unhandledRejection', (err) => console.error('unhandled rejection', err));
+
 // ---------------------------------------------------------------- helpers
 function display() {
   return screen.getPrimaryDisplay();
@@ -147,13 +161,22 @@ function createWindows() {
   layout();
 }
 
-function layout() {
+let lastLayout = '';
+
+// Positions the shell windows and reserves screen space for the dock. Only does work when the
+// display really changed: reserving the work area itself fires display-metrics-changed, so
+// reacting to every event would loop forever (lag, 100% CPU, flickering dock).
+function layout(force = false) {
   const d = display();
   const b = d.bounds;
   const s = scale();
   const replace = config.get().replaceTaskbar;
-  const desk = replace ? b : d.workArea;
-  desktopWin.setBounds(desk);
+  const key = JSON.stringify([b, d.scaleFactor, replace]);
+  if (!force && key === lastLayout) return;
+  const scaleChanged = !lastLayout || JSON.parse(lastLayout)[1] !== d.scaleFactor || JSON.parse(lastLayout)[0].width !== b.width;
+  lastLayout = key;
+
+  desktopWin.setBounds(replace ? b : d.workArea);
   overlayWin.setBounds(b);
   const dockH = Math.round(DOCK_WINDOW_H * s);
   dockWin.setBounds({ x: b.x, y: b.y + b.height - dockH, width: b.width, height: dockH });
@@ -161,13 +184,13 @@ function layout() {
   if (replace) {
     native.call('hideTaskbar');
     native.call('setWorkArea', { top: 0, bottom: Math.round(TASKBAR_H * s * d.scaleFactor) });
-    if (dockWin.webContents && !dockWin.isVisible()) dockWin.showInactive();
+    if (!dockWin.isVisible()) dockWin.showInactive();
   } else {
     native.call('showTaskbar');
     native.call('restoreWorkArea');
     dockWin.hide();
   }
-  broadcast('config', publicConfig());
+  if (scaleChanged || force) broadcast('config', publicConfig());
 }
 
 function applyHooks() {
@@ -326,8 +349,14 @@ function dockModel() {
   return { pinned, recent, mode: dockMode };
 }
 
-function pushDock() {
-  if (dockWin && !dockWin.isDestroyed()) dockWin.webContents.send('dock', dockModel());
+let lastDock = '';
+function pushDock(force = false) {
+  if (!dockWin || dockWin.isDestroyed()) return;
+  const model = dockModel();
+  const key = JSON.stringify(model);
+  if (!force && key === lastDock) return;
+  lastDock = key;
+  dockWin.webContents.send('dock', model);
 }
 
 // ---------------------------------------------------------------- state polling
@@ -341,12 +370,23 @@ function pushState() {
   }, 150);
 }
 
-async function pollWindows() {
-  const wins = (await native.call('listWindows')) || [];
-  for (const w of wins) w.icon = await iconForExe(w.exe);
-  state.windows = wins;
-  state.nowPlaying = system.nowPlaying(wins);
-  pushState();
+let polling = null;
+function pollWindows() {
+  // Coalesce: foreground events can arrive in bursts.
+  if (!polling) {
+    polling = (async () => {
+      const wins = (await native.call('listWindows')) || [];
+      for (const w of wins) w.icon = await iconForExe(w.exe);
+      state.windows = wins;
+      state.nowPlaying = system.nowPlaying(wins);
+      // One UI shows the taskbar only while an app is open in front; tool windows such as the
+      // Snipping Tool recorder or our own panels don't count.
+      const mode = wins.some((w) => w.foreground && !w.minimized) ? 'taskbar' : 'home';
+      if (overlayMode !== 'lock' && mode !== dockMode) dockMode = mode;
+      pushState();
+    })().finally(() => { polling = null; });
+  }
+  return polling;
 }
 
 async function pollFast() {
@@ -426,14 +466,28 @@ function power(action) {
 async function setConfig(patch) {
   const before = config.get();
   const c = config.set(patch);
-  if ('replaceTaskbar' in patch && patch.replaceTaskbar !== before.replaceTaskbar) layout();
+  if ('replaceTaskbar' in patch && patch.replaceTaskbar !== before.replaceTaskbar) layout(true);
   if (['replaceStart', 'hookWinA', 'hookWinTab', 'roundedWindows'].some((k) => k in patch)) applyHooks();
   if ('darkMode' in patch) native.call('setDarkMode', { on: c.darkMode });
   if ('autostart' in patch && app.isPackaged) app.setLoginItemSettings({ openAtLogin: c.autostart });
   if ('city' in patch || 'units' in patch) pollWeather(true);
   broadcast('config', publicConfig());
-  pushDock();
+  pushDock(true);
   return publicConfig();
+}
+
+// The picture currently set as the Windows desktop background.
+function windowsWallpaper() {
+  return new Promise((resolve) => {
+    const transcoded = path.join(process.env.APPDATA || '', 'Microsoft', 'Windows', 'Themes', 'TranscodedWallpaper');
+    const fallback = () => resolve(fs.existsSync(transcoded) ? transcoded : null);
+    execFile('reg', ['query', 'HKCU\\Control Panel\\Desktop', '/v', 'WallPaper'], { windowsHide: true }, (err, out) => {
+      const m = !err && /WallPaper\s+REG_SZ\s+(.+)/i.exec(out || '');
+      const file = m && m[1].trim();
+      if (file && fs.existsSync(file)) resolve(file);
+      else fallback();
+    });
+  });
 }
 
 // ---------------------------------------------------------------- IPC
@@ -487,6 +541,7 @@ function registerIpc() {
     return r.canceled ? null : r.filePaths[0];
   });
   h('settings:open', (section) => { hideOverlay(); openSettings(section); });
+  h('wallpaper:windows', () => windowsWallpaper());
   h('open:uri', (uri) => { hideOverlay(); apps.openUri(uri); });
   h('self:close', () => settingsWin && settingsWin.close());
   h('self:minimize', () => settingsWin && settingsWin.minimize());
@@ -507,7 +562,8 @@ function registerNative() {
     state.build = msg.build;
     native.call('setIgnorePids', { pids: ourPids() });
     applyHooks();
-    if (desktopWin) layout();
+    // The helper (re)started: hide the taskbar and reserve the dock area again.
+    if (desktopWin) layout(true);
   });
   native.on('winkey', () => showOverlay('drawer'));
   native.on('win_a', () => showOverlay('quick'));
@@ -518,11 +574,7 @@ function registerNative() {
     const realDesktop = fg.class === 'Progman' || fg.class === 'WorkerW';
     // Win+D / clicking the real desktop: bring our home screen back above it.
     if (realDesktop && desktopWin) native.call('toBottom', { hwnd: hwndOf(desktopWin) });
-    const mode = realDesktop || is(desktopWin) || !fg.hwnd ? 'home' : 'taskbar';
-    if (mode !== dockMode) {
-      dockMode = mode;
-      pushDock();
-    }
+    if (realDesktop || is(desktopWin)) dockMode = 'home';
     system.foreground(fg.ours ? null : fg.app);
     pollWindows();
   });
@@ -562,9 +614,12 @@ app.whenReady().then(async () => {
   // Emergency exit that always brings the real Windows taskbar back.
   globalShortcut.register('Control+Alt+Shift+Q', () => app.quit());
 
-  screen.on('display-metrics-changed', layout);
-  screen.on('display-added', layout);
-  screen.on('display-removed', layout);
+  // Ignore work-area-only changes (we cause those ourselves when reserving room for the dock).
+  screen.on('display-metrics-changed', (e, d, changed) => {
+    if (changed.includes('bounds') || changed.includes('scaleFactor')) layout();
+  });
+  screen.on('display-added', () => layout());
+  screen.on('display-removed', () => layout());
   powerMonitor.on('resume', () => { if (config.get().lockOnResume) showOverlay('lock'); });
 
   if (config.get().autostart && app.isPackaged) app.setLoginItemSettings({ openAtLogin: true });
